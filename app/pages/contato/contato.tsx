@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { ButtonAction } from '@/app/components/customizaveis/buttonAction';
-import EnviaEmail from '@/app/services/envioEmail/page';
+import EnviaEmail from '@/app/services/envioEmail/emailService';
 
 const formSchema = z.object({
   primeiroNome: z.string().min(2, 'Nome muito curto'),
