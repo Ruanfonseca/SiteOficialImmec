@@ -40,7 +40,14 @@ export default function Hero() {
               description: "O Senhor tem nos ensinado que a leitura da Sua Palavra é o caminho para ouvirmos a Sua voz com clareza.",
               href: "https://www.instagram.com/p/DI6rySjRQnc/",
               cta: "Ver"
-            }, {
+            },
+            {
+              title: "Queremos te conhecer!",
+              description: "Preecha o formulário para ficar ligado nos eventos da igreja.",
+              href: "https://typebot.co/immecchurch",
+              cta: "Ver"
+            },
+            {
               title: "Andamento da Obra",
               description: "A obra do nosso novo templo segue avançando.",
               href: "https://www.instagram.com/p/DI4Cl0URhRY/",

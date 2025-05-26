@@ -6,8 +6,29 @@ import Image from "next/image";
 import uber from '@/app/assets/uber.svg';
 import efraimimg from '@/app/assets/efraim.jpeg';
 import { Footer } from "@/app/components/footer/footer";
+import { useState } from "react";
 
 export default function Efraim() {
+  const [loading, setLoading] = useState(false);
+
+
+   const handleClick = () => {
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        callUber(
+          "Travessa Moriçaba, 16, Campo Grande, Rio de Janeiro",
+          position.coords.latitude,
+          position.coords.longitude
+        );
+        setLoading(false);
+      },
+      () => {
+        callUber("Travessa Moriçaba, 16, Campo Grande, Rio de Janeiro");
+        setLoading(false);
+      }
+    );
+  };
   return (
     <>
       <Navbar />
@@ -45,25 +66,17 @@ export default function Efraim() {
                 </p>
 
                 <Button
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-black to-gray-900 text-white font-semibold rounded-full shadow-md hover:from-white hover:to-white hover:text-black border border-black transition-all duration-300"
-                  onClick={() =>
-                    navigator.geolocation.getCurrentPosition(
-                      (position) => {
-                        callUber(
-                          "Travessa Moriçaba, 16, Campo Grande, Rio de Janeiro",
-                          position.coords.latitude,
-                          position.coords.longitude
-                        );
-                      },
-                      () => {
-                        callUber("Travessa Moriçaba, 16, Campo Grande, Rio de Janeiro");
-                      }
-                    )
-                  }
-                >
-                  <Image src={uber} alt="Uber" width={20} height={20} />
-                  Chamar Uber
-                </Button>
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-black to-gray-900 text-white font-semibold rounded-full shadow-md hover:from-white hover:to-white hover:text-black border border-black transition-all duration-300"
+                    onClick={handleClick}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Image src={uber} alt="Uber" width={20} height={20} />
+                    )}
+                    Chamar Uber
+                  </Button>
               </div>
             </div>
 
