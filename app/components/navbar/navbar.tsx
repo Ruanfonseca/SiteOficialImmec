@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const links: [string, string][] = [
     ['/#sobre', 'Nossa História'],
@@ -24,6 +26,8 @@ export function Navbar() {
     ['/#contato', 'Contato'],
     ['/#rodape', 'Doação'],
   ];
+
+  const isHome = pathname === '/';
 
   return (
     <div className="flex flex-col bg-white">
@@ -59,40 +63,43 @@ export function Navbar() {
             Immec Church
           </Link>
 
-          {/* Mobile Drawer */}
+          {/* Mobile Drawer (esconde se estiver na home '/') */}
           <div className="lg:hidden flex items-center gap-2">
             <Link href="/login" className="text-white flex items-center gap-1">
               <LogIn className="w-5 h-5" />
               <span className="text-sm">Área do Membro</span>
             </Link>
-            <Drawer open={menuOpen} onOpenChange={setMenuOpen}>
-              <DrawerTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white">
-                  <Menu />
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent className="bg-white">
-                <DrawerHeader>
-                  <DrawerTitle className="text-center text-lg text-black font-bold">Menu</DrawerTitle>
-                </DrawerHeader>
-                <ul className="flex flex-col text-black space-y-4 px-6 pb-6">
-                  {links.map(([href, label]) => (
-                    <li key={label}>
-                      <Link
-                        href={href}
-                        onClick={() => setMenuOpen(false)}
-                        className="block py-2 text-base hover:text-black"
-                      >
-                        {label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </DrawerContent>
-            </Drawer>
+
+            {!isHome && (
+              <Drawer open={menuOpen} onOpenChange={setMenuOpen}>
+                <DrawerTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-white">
+                    <Menu />
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="bg-white">
+                  <DrawerHeader>
+                    <DrawerTitle className="text-center text-lg text-black font-bold">Menu</DrawerTitle>
+                  </DrawerHeader>
+                  <ul className="flex flex-col text-black space-y-4 px-6 pb-6">
+                    {links.map(([href, label]) => (
+                      <li key={label}>
+                        <Link
+                          href={href}
+                          onClick={() => setMenuOpen(false)}
+                          className="block py-2 text-base hover:text-black"
+                        >
+                          {label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </DrawerContent>
+              </Drawer>
+            )}
           </div>
 
-          {/* Desktop Menu and Search */}
+          {/* Desktop Menu e Área do Membro */}
           <div className="hidden lg:flex lg:items-center lg:justify-between w-full">
             <ul className="flex space-x-6">
               {links.map(([href, label]) => (
@@ -103,7 +110,6 @@ export function Navbar() {
                 </li>
               ))}
             </ul>
-            {/* Search Form */}
             <form className="flex ml-auto w-full max-w-xs">
               <Input
                 type="text"
@@ -114,7 +120,6 @@ export function Navbar() {
                 <i className="fa fa-search" />
               </Button>
             </form>
-            {/* Área do Membro */}
             <Link
               href="/membro/auth/login"
               className="ml-4 flex items-center gap-2 text-sm hover:text-black"
