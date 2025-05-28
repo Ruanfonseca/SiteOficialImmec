@@ -65,7 +65,7 @@ export function Navbar() {
 
           {/* Mobile Drawer (esconde se estiver na home '/') */}
           <div className="lg:hidden flex items-center gap-2">
-            <Link href="/login" className="text-white flex items-center gap-1">
+            <Link href="/membro/auth/login" className="text-white flex items-center gap-1">
               <LogIn className="w-5 h-5" />
               <span className="text-sm">Área do Membro</span>
             </Link>
