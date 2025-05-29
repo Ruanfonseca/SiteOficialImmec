@@ -40,20 +40,22 @@ export default function Login() {
     setMessage('Autenticando...');
 
     try {
-      const res = await fetch('/api/usuario/auth/cadastro', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      // const res = await fetch('/api/usuario/auth/cadastro', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(data),
+      // });
 
-      const result = await res.json();
-      if (res.ok) {
-        setMessage('Login realizado com sucesso!');
-        localStorage.setItem('token', result.token);
-        // window.location.href = '/dashboard';
-      } else {
-        setMessage(result.error || 'Erro no login.');
-      }
+      // const result = await res.json();
+      // if (res.ok) {
+      //   setMessage('Login realizado com sucesso!');
+      //   localStorage.setItem('token', result.token);
+      //   // window.location.href = '/dashboard';
+      // } else {
+      //   setMessage(result.error || 'Erro no login.');
+      // }
+
+
     } catch (error) {
       setMessage('Erro ao conectar com o servidor.');
     }
@@ -110,8 +112,8 @@ export default function Login() {
               )}
             </div>
 
-            <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800 transition">
-              Entrar
+            <Button  className="w-full bg-black text-white hover:bg-gray-800 transition">
+              <a href="/membro/dashboard">Entrar</a>
             </Button>
 
             {message && (

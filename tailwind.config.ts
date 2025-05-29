@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class", // Permite alternância de tema via classe "dark" no <html>
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -22,7 +23,7 @@ const config: Config = {
         primary: "oklch(var(--primary) / <alpha-value>)",
         secondary: "oklch(var(--secondary) / <alpha-value>)",
         sidebar: "oklch(var(--sidebar) / <alpha-value>)",
-        // Adicione outras variáveis que estiver usando
+        // Adicione mais cores customizadas conforme necessidade
       },
     },
   },

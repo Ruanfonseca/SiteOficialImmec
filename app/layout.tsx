@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { UserProvider } from "./context/usuarioContext/UsuarioContext";
+import { ThemeProvider } from "./components/theme/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/icon/LogoImmecChurch.jpg" type="image/jpeg" />
         <title>Immec Church</title>
@@ -33,10 +34,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <ThemeProvider
+            attribute="class" defaultTheme="system" enableSystem
+          >
         <UserProvider>
             {children}
         </UserProvider>
          <Toaster />
+         </ThemeProvider>
       </body>
     </html>
   );
