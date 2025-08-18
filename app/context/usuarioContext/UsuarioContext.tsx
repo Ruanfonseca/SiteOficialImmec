@@ -1,24 +1,19 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-
-interface User {
-  email: string;
-  [key: string]: any; 
-  
-}
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User, IUserContext } from '@/app/types/interfaces';
 
 interface UserContextType {
-  user: User | null;
+  user: IUserContext | null;
   token: string | null;
-  setUserData: (user: User, token: string) => void;
+  setUserData: (user: IUserContext, token: string) => void;
   logout: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<IUserContext | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,11 +22,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     if (storedToken && storedUser) {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Erro ao fazer parse do usuário:", error);
+      }
     }
   }, []);
 
-  const setUserData = (user: User, token: string) => {
+  const setUserData = (user: IUserContext, token: string) => {
     setUser(user);
     setToken(token);
     localStorage.setItem('token', token);
@@ -54,6 +53,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
 export function useUser() {
   const context = useContext(UserContext);
-  if (!context) throw new Error('useUser deve ser usado dentro de UserProvider');
+  if (!context) {
+    throw new Error('useUser deve ser usado dentro de um UserProvider');
+  }
   return context;
 }

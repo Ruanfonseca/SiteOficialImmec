@@ -14,7 +14,6 @@ export function callUber(destinationAddress: string, userLatitude?: number, user
   // Tenta abrir o app Uber
   window.location.href = uberAppUrl;
 
-  // Fallback para abrir o site após 1.5 segundos
   setTimeout(() => {
     window.open(uberWebUrl, "_blank");
   }, 1500);

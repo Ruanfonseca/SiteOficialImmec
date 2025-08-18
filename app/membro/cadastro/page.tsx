@@ -8,38 +8,54 @@ import { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader } from "lucide-react";
 import logo from '@/public/icon/LogoImmecChurch.jpg';
+import { formatTelefone } from '@/app/util/formUtil';
+import { registrarUsuario } from '@/app/services/usuarioService/service';
+import { CadastroSchema } from '@/lib/zodSchemas';
+import { toast } from "sonner"
 
-const schema = z.object({
-  nome: z.string().min(3, "Nome é obrigatório"),
-  telefone: z.string()
-    .regex(/^\(\d{2}\) \d{5}-\d{4}$/, "Telefone deve estar no formato (99) 99999-9999"),
-  email: z.string().email("E-mail inválido"),
-  senha: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
-  confirmarSenha: z.string()
-}).refine((data) => data.senha === data.confirmarSenha, {
-  path: ['confirmarSenha'],
-  message: 'As senhas não coincidem',
-});
 
-type FormData = z.infer<typeof schema>;
+
+
+type FormData = z.infer<typeof CadastroSchema>;
 
 export default function Cadastro() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [telefone, setTelefone] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+
+  const { register, handleSubmit, setValue,reset, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(CadastroSchema),
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log(data); 
-  };
+
+async function onSubmit(data: FormData) {
+  setIsLoading(true);
+  try {
+    const userData = {
+      nome: data.nome ?? '',
+      email: data.email,
+      telefone: data.telefone,
+      senha: data.senha,
+    };
+
+    await registrarUsuario(userData);
+    toast.success("Usuário cadastrado com sucesso!");
+    reset();
+  } catch (error: any) {
+    toast.error(error.message || "Erro ao cadastrar usuário");
+  } finally {
+    setIsLoading(false);
+  }
+}
+
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-gray-100 to-white px-4">
-      <Card className="w-full max-w-md shadow-xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-gray-100 to-white px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-sm sm:max-w-md lg:max-w-lg shadow-xl">
         <CardHeader className="flex flex-col items-center gap-4">
           <Image
             src={logo}
@@ -48,30 +64,39 @@ export default function Cadastro() {
             height={100}
             className="rounded-full bg-white p-2"
           />
-          <CardTitle className="text-2xl font-bold text-center">Criar Conta</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center text-black">Criar Conta</CardTitle>
         </CardHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
+
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Nome completo</label>
-              <Input {...register("nome")} placeholder="Seu nome completo" />
+              <Input {...register("nome")} className="text-black" placeholder="Seu nome completo" />
               {errors.nome && <p className="text-sm text-red-500">{errors.nome.message}</p>}
             </div>
 
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Telefone</label>
               <Input
-                type="tel"
-                placeholder="(99) 99999-9999"
-                {...register("telefone")}
-              />
+                  type="tel"
+                  placeholder="(99) 99999-9999"
+                  className="text-black"
+                  value={telefone}
+                  {...register("telefone")}
+                  onChange={(e) => {
+                    const formatted = formatTelefone(e.target.value);
+                    setTelefone(formatted);
+                    setValue("telefone", formatted); 
+                  }}
+                />
+
               {errors.telefone && <p className="text-sm text-red-500">{errors.telefone.message}</p>}
             </div>
 
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Email</label>
-              <Input type="email" placeholder="seuemail@email.com" {...register("email")} />
+              <Input type="email" className="text-black" placeholder="seuemail@email.com" {...register("email")} />
               {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
             </div>
 
@@ -81,7 +106,7 @@ export default function Cadastro() {
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="pr-10"
+                  className="pr-10 text-black"
                   {...register("senha")}
                 />
                 <button
@@ -102,7 +127,7 @@ export default function Cadastro() {
                 <Input
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="pr-10"
+                  className="pr-10 text-black"
                   {...register("confirmarSenha")}
                 />
                 <button
@@ -117,8 +142,16 @@ export default function Cadastro() {
               {errors.confirmarSenha && <p className="text-sm text-red-500">{errors.confirmarSenha.message}</p>}
             </div>
 
-            <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800 transition">
-              Cadastrar
+           <Button
+              type="submit"
+              className="w-full bg-black text-white hover:bg-gray-800 transition flex items-center justify-center"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader className="animate-spin w-5 h-5" />
+              ) : (
+                'Cadastrar'
+              )}
             </Button>
 
             <div className="text-center text-sm text-gray-500">

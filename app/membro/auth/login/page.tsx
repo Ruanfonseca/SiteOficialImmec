@@ -12,11 +12,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import logo from '@/public/icon/LogoImmecChurch.jpg';
 import { useAuthGuard } from '@/app/hook/useAuthGuard';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Email inválido' }),
-  password: z.string().min(6, { message: 'A senha deve ter no mínimo 6 caracteres' }),
+  senha: z.string().min(6, { message: 'A senha deve ter no mínimo 6 caracteres' }),
 });
 
 type LoginSchema = z.infer<typeof loginSchema>;
@@ -26,6 +28,7 @@ export default function Login() {
   const [message, setMessage] = useState('');
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
     useAuthGuard({ requireAuth: false, redirectIfAuthenticated: '/dashboard' });
+  const router = useRouter();
 
 
   const {
@@ -36,30 +39,25 @@ export default function Login() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginSchema) => {
-    setMessage('Autenticando...');
+    async function onSubmit(data: LoginSchema) {
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
 
-    try {
-      // const res = await fetch('/api/usuario/auth/cadastro', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(data),
-      // });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error?.error || 'Falha no login');
+        }
+        router.push('/membro/dashboard');
 
-      // const result = await res.json();
-      // if (res.ok) {
-      //   setMessage('Login realizado com sucesso!');
-      //   localStorage.setItem('token', result.token);
-      //   // window.location.href = '/dashboard';
-      // } else {
-      //   setMessage(result.error || 'Erro no login.');
-      // }
-
-
-    } catch (error) {
-      setMessage('Erro ao conectar com o servidor.');
+      } catch (err: any) {
+        toast.error(err.message || 'Erro ao logar');
+      }
     }
-  };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-gray-100 to-white px-4">
@@ -96,7 +94,7 @@ export default function Login() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   className="pr-10"
-                  {...register('password')}
+                  {...register('senha')}
                 />
                 <button
                   type="button"
@@ -107,13 +105,13 @@ export default function Login() {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password.message}</p>
+              {errors.senha && (
+                <p className="text-sm text-red-500">{errors.senha.message}</p>
               )}
             </div>
 
-            <Button  className="w-full bg-black text-white hover:bg-gray-800 transition">
-              <a href="/membro/dashboard">Entrar</a>
+            <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800 transition">
+              Entrar
             </Button>
 
             {message && (
@@ -138,3 +136,7 @@ export default function Login() {
     </div>
   );
 }
+function setIsLoading(arg0: boolean) {
+  throw new Error('Function not implemented.');
+}
+

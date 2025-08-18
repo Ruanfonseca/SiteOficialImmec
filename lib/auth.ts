@@ -12,7 +12,7 @@ export function comparePassword(password: string, hash: string) {
 }
 
 export function generateToken(payload: object) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 }
 
 export function verifyToken(token: string) {
