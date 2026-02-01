@@ -1,43 +1,69 @@
-import { CadastroSchema } from '@/lib/zodSchemas';
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
+export const runtime = "nodejs";
 
-
+import { CadastroSchema } from "@/lib/zodSchemas";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    
-    const dadoTratado = CadastroSchema.safeParse(data);
-    
-    if (!dadoTratado.success) {
-      console.warn("Erro de validação:", dadoTratado.error.errors);
-      return NextResponse.json({ error: dadoTratado.error.errors }, { status: 400 });
+
+    const parsed = CadastroSchema.safeParse(data);
+    if (!parsed.success) {
+      console.warn("Erro de validação:", parsed.error.errors);
+      return NextResponse.json({ error: parsed.error.errors }, { status: 400 });
     }
 
-    const senhaHash = await bcrypt.hash(data.senha, 10);
+    const { nome, email, telefone, senha } = parsed.data;
 
-    // Criar usuário no banco
+    const senhaHash = await bcrypt.hash(senha, 10);
+
     const user = await prisma.user.create({
       data: {
-        nome: data.nome,
-        email: data.email,
-        telefone: data.telefone,
+        nome,
+        email,
+        telefone,
         senha: senhaHash,
       },
     });
 
-    console.log("Usuário criado com sucesso:", user);
-
-    return NextResponse.json(user);
+    // ⚠️ nunca retorne senha
+    return NextResponse.json(
+      {
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        telefone: user.telefone,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     console.error("Erro interno no servidor:", error);
-    return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erro interno no servidor" },
+      { status: 500 },
+    );
   }
 }
 
 export async function GET() {
-  const users = await prisma.user.findMany();
-  return NextResponse.json(users);
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        telefone: true,
+      },
+    });
+
+    return NextResponse.json(users);
+  } catch (error) {
+    console.error("Erro ao listar usuários:", error);
+    return NextResponse.json(
+      { error: "Erro interno no servidor" },
+      { status: 500 },
+    );
+  }
 }
